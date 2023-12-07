@@ -1,0 +1,148 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    int codigo;
+    char descricao[70];
+    int quantidade;
+    float valor;
+} Produto;
+
+typedef struct Node {
+    Produto produto;
+    struct Node *prox;
+} Node;
+
+typedef struct {
+    Node *inicio;
+} ListaEstoque;
+
+void inicializarLista(ListaEstoque *lista) {
+    lista->inicio = NULL;
+}
+
+void adicionarProduto(ListaEstoque *lista) {
+    Produto novoProduto;
+    printf("digite o codigo do produto: ");
+    scanf("%d", &novoProduto.codigo);
+    printf("digite a descricao do produto: \n");
+    scanf(" %[^\n]s", novoProduto.descricao);
+    printf("digite a quantidade do produto: ");
+    scanf("%d", &novoProduto.quantidade);
+    printf("digite o valor do produto: ");
+    scanf("%f", &novoProduto.valor);
+
+    Node *novoNode = (Node *)malloc(sizeof(Node));
+    novoNode->produto = novoProduto;
+    novoNode->prox = lista->inicio;
+    lista->inicio = novoNode;
+}
+
+void imprimirRelatorio(ListaEstoque lista) {
+    Node *atual = lista.inicio;
+
+    printf("\nRelatorio de Estoque:\n");
+    while (atual != NULL) {
+        printf("codigo: %d\n", atual->produto.codigo);
+        printf("descricao: %s\n", atual->produto.descricao);
+        printf("quantidade: %d\n", atual->produto.quantidade);
+        printf("valor: %.2f\n\n", atual->produto.valor);
+        atual = atual->prox;
+    }
+}
+
+void pesquisarProduto(ListaEstoque lista) {
+    int codigo;
+    printf("digite o codigo do produto a ser pesquisado: ");
+    scanf("%d", &codigo);
+
+    Node *atual = lista.inicio;
+    while (atual != NULL) {
+        if (atual->produto.codigo == codigo) {
+            printf("\nproduto encontrado:\n");
+            printf("Codigo: %d\n", atual->produto.codigo);
+            printf("descricao: %s\n", atual->produto.descricao);
+            printf("quantidade: %d\n", atual->produto.quantidade);
+            printf("valor: %.2f\n\n", atual->produto.valor);
+               return;
+        }
+        atual = atual->prox;
+    }
+
+    printf("\nproduto nao encontrado.\n");
+}
+
+void removerProduto(ListaEstoque *lista) {
+    int codigo;
+    printf("digite o codigo do produto a ser removido: ");
+    scanf("%d", &codigo);
+
+    Node *atual = lista->inicio;
+    Node *anterior = NULL;
+
+    while (atual != NULL) {
+        if (atual->produto.codigo == codigo) {
+            if (anterior == NULL) {
+                lista->inicio = atual->prox;
+            } else {
+                anterior->prox = atual->prox;
+            }
+
+            free(atual);
+            printf("\nproduto removido com sucesso.\n");
+            return;
+        }
+
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    printf("\nproduto nao encontrado.\n");
+}
+
+void liberarLista(ListaEstoque *lista) {
+    Node *atual = lista->inicio;
+    Node *proximo;
+
+    while (atual != NULL) {
+        proximo = atual->prox;
+        free(atual);
+        atual = proximo;
+    }
+
+    lista->inicio = NULL;
+}
+
+int main() {
+    ListaEstoque estoque;
+    inicializarLista(&estoque);
+
+    int opcao;
+    do {
+        printf("\n1 - adicionar produto\n");
+        printf("2 - imprimir relatorio\n");
+        printf("3 - pesquisar produto\n");
+        printf("4 - remover produto\n");
+        printf("0 - sair\n");
+        printf("escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                adicionarProduto(&estoque);break;
+            case 2:
+                imprimirRelatorio(estoque);break;
+            case 3:
+                pesquisarProduto(estoque);break;
+            case 4:
+                removerProduto(&estoque);break;
+            case 0:
+                liberarLista(&estoque);break;
+            default:
+                printf("opção invalida. Tente novamente.\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
